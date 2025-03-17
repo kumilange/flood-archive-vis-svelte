@@ -165,11 +165,15 @@
     display: flex;
     align-items: center;
     width: 100%;
+    font-size: 12px;
+    font-family: var(--text-font);
+    font-weight: 300;
+    color: var(--primary);
   }
 
   .play-button {
-    width: 40px;
-    height: 40px;
+    width: 30px;
+    height: 30px;
     border-radius: 50%;
     background: white;
     border: 1px solid var(--primary);
@@ -192,11 +196,13 @@
   .slider-wrapper {
     flex: 1;
     margin-left: 16px;
+    margin-top: -6px;
+    height: 20px; 
   }
 
   .range-container {
     position: relative;
-    height: 40px;
+    height: 16px;
     display: flex;
     align-items: center;
   }
@@ -216,8 +222,8 @@
     &::-webkit-slider-thumb {
       -webkit-appearance: none;
       pointer-events: all;
-      width: 24px;
-      height: 24px;
+      width: 14px;
+      height: 14px;
       border-radius: 50%;
       background: white;
       border: 2px solid var(--primary);
@@ -226,8 +232,8 @@
 
     &::-moz-range-thumb {
       pointer-events: all;
-      width: 24px;
-      height: 24px;
+      width: 14px;
+      height: 14px;
       border-radius: 50%;
       background: white;
       border: 2px solid var(--primary);
@@ -237,25 +243,29 @@
 
   .track {
     position: absolute;
-    width: 100%;
-    height: 4px;
+    width: 99%;
+    height: 2px;
+    top: 9px;
     background-color: #e0e0e0;
     z-index: 1;
+    margin-left: 2px;
   }
 
   .range-selected {
     position: absolute;
-    height: 4px;
+    height: 2px;
+    top: 9px;
     background-color: var(--primary);
     z-index: 2;
+    margin-left: 2px;
   }
 
   .labels {
     display: flex;
     justify-content: space-between;
-    margin-top: 10px;
-    font-weight: 600;
+    margin-top: -2px;
+    font-weight: 300;
     color: var(--primary);
-    font-size: 14px;
+    font-size: 12px;
   }
 </style> 
