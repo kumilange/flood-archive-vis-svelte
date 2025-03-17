@@ -73,7 +73,7 @@
             return [200, 200, 200] as [number, number, number]; // Fallback color
           }
         },
-        getLineColor: [0, 0, 0],
+        getLineColor: [0, 0, 0, 50],
         getPointRadius: (f: any) => {
           const area = (f.properties?.Area as number) || 0;
           return Math.sqrt(area) * 100;
@@ -87,7 +87,7 @@
           filterValue[0] * 0.1 + filterValue[1] * 0.9
         ],
         extensions: [dataFilter],
-        lineWidthMinPixels: 1,
+        lineWidthMinPixels: 0.5,
         opacity: 0.8
       })]
     : [];
@@ -95,22 +95,18 @@
   // Load data on component mount
   onMount(async () => {
     try {
-      console.log('Loading data from:', DATA_URL);
       const geojson = await load(DATA_URL, GeoJSONLoader, {
         json: {
           tableFormat: 'geojson'
         }
       });
 
-      console.log('Data loaded successfully:', geojson);
       data = geojson;
       timeRange = getTimeRange(data.features);
-      console.log('Time range:', timeRange);
       
       // Initialize filter value if not set yet
       if (!currentTimeFilterRange) {
         filterValue = timeRange;
-        console.log('Filter value initialized:', filterValue);
       }
       
       loading = false;
@@ -123,7 +119,6 @@
 
   // Handle time filter change
   function handleTimeFilterChange(newRange: [number, number]) {
-    console.log('Time filter changed:', newRange);
     updateTimeFilter(newRange);
   }
 </script>
@@ -143,7 +138,7 @@
       style={MAP_STYLE}
       center={[currentViewState?.longitude || 0, currentViewState?.latitude || 0]}
       zoom={currentViewState?.zoom || 2}
-      on:load={handleMapLoad}
+      {...{ 'on:load': handleMapLoad }}
       attributionControl={false}
     >
       {#if layers.length > 0}
