@@ -32,15 +32,14 @@
 
 <style lang="scss">
   .legend {
-    position: absolute;
-    bottom: 20px;
-    right: 20px;
+    position: fixed;
+    right: 16px;
+    top: 50%;
+    transform: translateY(-50%);
+    padding: 4px 8px 8px;
+    border: 1px solid var(--transparent);
     background-color: var(--transparent);
-    padding: 10px;
     border-radius: 4px;
-    z-index: 1;
-    font-size: 12px;
-    border: 1px solid rgba(0, 0, 0, 0.1);
   }
 
   .title {
