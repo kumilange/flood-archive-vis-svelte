@@ -5,7 +5,7 @@
   import { load } from '@loaders.gl/core';
   import { _GeoJSONLoader as GeoJSONLoader } from '@loaders.gl/json';
   import type { FeatureCollection, Geometry, GeoJsonProperties } from 'geojson';
-  import { Map } from 'svelte-maplibre-gl';
+  import { Map, AttributionControl } from 'svelte-maplibre-gl';
   import { DeckGLOverlay } from 'svelte-maplibre-gl/deckgl';
   import maplibregl from 'maplibre-gl';
 
@@ -39,6 +39,11 @@
   let error: string | null = null;
   let currentViewState: any;
   let currentTimeFilterRange: any;
+
+  // Map load handler
+  function handleMapLoad(event: CustomEvent) {
+    map = event.detail.map;
+  }
 
   // Subscribe to stores
   viewState.subscribe(value => {
@@ -135,10 +140,11 @@
     <div class="error" role="alert" aria-live="assertive">{error}</div>
   {:else}
     <Map
-      bind:map
       style={MAP_STYLE}
       center={[currentViewState?.longitude || 0, currentViewState?.latitude || 0]}
       zoom={currentViewState?.zoom || 2}
+      on:load={handleMapLoad}
+      attributionControl={false}
     >
       {#if layers.length > 0}
         <DeckGLOverlay 
@@ -148,10 +154,9 @@
         />
       {/if}
       
-      <!-- Attribution control added separately to avoid compatibility issues -->
-      <div class="attribution">
-        Data source: G.R. Brakenridge. Global Active Archive of Large Flood Events. Dartmouth Flood Observatory, University of Colorado, USA.
-      </div>
+      <AttributionControl
+        customAttribution="Data source: G.R. Brakenridge. Global Active Archive of Large Flood Events. Dartmouth Flood Observatory, University of Colorado, USA."
+      />
     </Map>
 
     <Legend />
@@ -222,24 +227,17 @@
     color: red;
   }
 
-  .attribution {
-    position: absolute;
-    bottom: 0;
-    right: 0;
-    background-color: rgba(255, 255, 255, 0.7);
-    padding: 5px 10px;
-    margin: 0;
-    font-size: 11px;
-    line-height: 1.5;
-    color: #333;
-    z-index: 1;
-  }
-
   :global(.maplibregl-map) {
     position: absolute;
     top: 0;
     left: 0;
     width: 100%;
     height: 100vh;
+  }
+
+  :global(.maplibregl-ctrl-attrib-inner) {
+    font-family: var(--text-font);
+    font-size: 12px;
+    color: #000;
   }
 </style> 
