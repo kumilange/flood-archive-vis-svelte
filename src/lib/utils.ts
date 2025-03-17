@@ -1,4 +1,3 @@
-import { Color, PickingInfo } from '@deck.gl/core';
 import type { Feature, Geometry, GeoJsonProperties } from 'geojson';
 
 /**
@@ -15,7 +14,7 @@ export function formatLabel(timestamp: number): string {
 }
 
 // Color constants for flood visualization based on death toll
-const COLOR_RANGE: Color[] = [
+const COLOR_RANGE: number[][] = [
 	[239, 243, 255],
 	[198, 219, 239],
 	[158, 202, 225],
@@ -31,8 +30,8 @@ const COLOR_RANGE: Color[] = [
  */
 export function generateFillColor(
 	f: Feature<Geometry, GeoJsonProperties>,
-): Color {
-	const deathToll: number = f.properties?.Dead || 0;
+): [number, number, number] {
+	const deathToll: number = f.properties?.['Dead'] || 0;
 	let index = 0;
 
 	if (deathToll > 0 && deathToll <= 10) {
@@ -47,7 +46,9 @@ export function generateFillColor(
 		index = 5;
 	}
 
-	return COLOR_RANGE[index];
+	// Ensure we have a valid index and return a properly typed color
+	const colorArray = COLOR_RANGE[index];
+	return colorArray ? colorArray.slice(0, 3) as [number, number, number] : [200, 200, 200];
 }
 
 /**
@@ -64,7 +65,7 @@ export function getTimeRange(
 
 	return features.reduce(
 		(range, f) => {
-			const t = f?.properties?.timestamp;
+			const t = f?.properties?.['timestamp'];
 			if (typeof t === 'number') {
 				range[0] = Math.min(range[0], t);
 				range[1] = Math.max(range[1], t);
@@ -89,9 +90,8 @@ interface FloodProperties {
  * @param info - Picking info from deck.gl
  * @returns Tooltip content or null if no object is hovered
  */
-export function getTooltip({
-	object,
-}: PickingInfo): { text: string; style: object } | null {
+export function getTooltip(info: any): { text: string; style: object } | null {
+	const { object } = info;
 	if (!object) return null;
 
 	const properties = object.properties as FloodProperties;
@@ -99,8 +99,8 @@ export function getTooltip({
 
 	return {
 		text: `\
-	  Country: ${Country}
-		Date: ${formatLabel(timestamp)}
+    Country: ${Country}
+    Date: ${formatLabel(timestamp)}
     Death: ${Dead}
     Area: ${Area} sq km
     `,
@@ -119,6 +119,6 @@ export function getTooltip({
  * @param isHovering - Whether the cursor is hovering over a feature
  * @returns The cursor style
  */
-export function getCursor({ isHovering }: { isHovering: boolean }): string {
-	return isHovering ? 'pointer' : 'default';
-}
+export function getCursor(info: any): string {
+	return info.isHovering ? 'pointer' : 'default';
+} 

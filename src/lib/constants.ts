@@ -1,14 +1,6 @@
-import { DataFilterExtension } from '@deck.gl/extensions';
-import { MapView } from '@deck.gl/core';
-
-// App component
+// Map style and data URL
 export const MAP_STYLE =
 	'https://basemaps.cartocdn.com/gl/positron-gl-style/style.json';
-
-export const MAP_VIEW = new MapView({
-	repeat: true,
-	farZMultiplier: 100,
-});
 
 export const INITIAL_VIEW_STATE = {
 	longitude: 0.0098,
@@ -19,12 +11,7 @@ export const INITIAL_VIEW_STATE = {
 export const DATA_URL =
 	'https://kumilange.github.io/data-store/flood/floodArchive.geojson';
 
-export const DATA_FILTER = new DataFilterExtension({
-	filterSize: 1,
-	fp64: false,
-});
-
-// AreaSelect
+// Area definitions for the map
 type Area = {
 	[key: string]: {
 		label: string;
@@ -32,6 +19,7 @@ type Area = {
 		zoom: number;
 	};
 };
+
 export const AREAS: Area = {
 	all: {
 		label: 'World',
@@ -130,3 +118,61 @@ export const AREAS: Area = {
 		zoom: 4,
 	},
 };
+
+// Generate area select options
+const AMERICA_GROUP_OPTIONS = Object.keys(AREAS)
+	.filter((key) => key.includes('america'))
+	.map((area) => ({ value: area, label: AREAS[area].label }));
+
+const ASIA_GROUP_OPTIONS = Object.keys(AREAS)
+	.filter((key) => key.includes('asia'))
+	.map((area) => ({ value: area, label: AREAS[area].label }));
+
+export const AREA_SELECT_OPTIONS = generateOptions();
+
+/**
+ * Generates a structured list of options for a select dropdown, grouping certain areas under "America" and "Asia" while listing other areas individually.
+ * @returns An array of objects representing grouped and individual area options for a select dropdown.
+ */
+function generateOptions() {
+	let hasAmerica = false;
+	let hasAsia = false;
+	const options: {
+		label: string;
+		title?: string;
+		options?:
+		| { value: string; label: string }[]
+		| { value: string; label: string }[];
+		value?: string;
+	}[] = [];
+
+	Object.keys(AREAS).forEach((key) => {
+		if (key.includes('america')) {
+			if (hasAmerica) return;
+
+			hasAmerica = true;
+			options.push({
+				label: 'America',
+				title: 'America',
+				options: AMERICA_GROUP_OPTIONS,
+			});
+
+			return;
+		} else if (key.includes('asia')) {
+			if (hasAsia) return;
+
+			hasAsia = true;
+			options.push({
+				label: 'Asia',
+				title: 'Asia',
+				options: ASIA_GROUP_OPTIONS,
+			});
+
+			return;
+		} else {
+			options.push({ value: key, label: AREAS[key].label });
+		}
+	});
+
+	return options;
+} 
