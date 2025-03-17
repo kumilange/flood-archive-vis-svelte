@@ -6,49 +6,94 @@
     viewState,
     updateViewState,
     updateBounds,
-    type BoundsType
+    type BoundsType,
+    type ViewStateType
   } from '../../lib/stores';
+
+  // Keep track of the currently selected area
+  let selectedArea = 'all';
+  let isHandlingChange = false;
 
   /**
    * Calculate viewport settings to fit bounds
    */
-  function fitBoundsToViewport(bounds: BoundsType) {
-    const { innerWidth, innerHeight } = window;
-    const viewport = new WebMercatorViewport({
-      width: innerWidth,
-      height: innerHeight,
-      ...get(viewState)
-    });
+  function fitBoundsToViewport(bounds: BoundsType): Partial<ViewStateType> {
+    try {
+      const { innerWidth, innerHeight } = window;
+      const currentViewState = get(viewState);
+      
+      const viewport = new WebMercatorViewport({
+        width: innerWidth,
+        height: innerHeight,
+        ...currentViewState
+      });
 
-    return viewport.fitBounds(bounds, { padding: 20 });
+      // Use type assertion to ensure TypeScript understands this will return the expected properties
+      const result = viewport.fitBounds(bounds, { padding: 20 }) as {
+        longitude: number;
+        latitude: number;
+        zoom: number;
+      };
+      
+      return {
+        longitude: result.longitude,
+        latitude: result.latitude,
+        zoom: result.zoom
+      };
+    } catch (error) {
+      console.error('Error calculating viewport:', error);
+      return {}; // Return empty object as fallback
+    }
   }
 
   /**
-   * Handle area selection change
+   * Handle area selection change - triggered by the reactive statement
    */
-  function handleFlyToArea(event: Event) {
-    const value = (event.target as HTMLSelectElement).value;
+  function handleFlyToArea() {
+    if (isHandlingChange) return; // Prevent recursive calls
+    isHandlingChange = true;
+    
+    try {
+      console.log('Area selected:', selectedArea);
+      
+      // Ensure the selected area exists in our config
+      if (!AREAS[selectedArea]) {
+        console.error(`Unknown area: ${selectedArea}`);
+        return;
+      }
 
-    // Ensure the selected area exists in our config
-    if (!AREAS[value]) {
-      console.error(`Unknown area: ${value}`);
-      return;
+      const boundbox = AREAS[selectedArea].boundary;
+      const newViewState = fitBoundsToViewport(boundbox);
+
+      // Update the viewState store 
+      updateViewState({
+        ...newViewState,
+        transitionDuration: 1000 
+      });
+
+      // Update the bounds store
+      updateBounds(boundbox);
+    } catch (error) {
+      console.error('Error updating view state:', error);
+    } finally {
+      isHandlingChange = false;
     }
+  }
 
-    const boundbox = AREAS[value].boundary;
-    const newViewState = fitBoundsToViewport(boundbox);
-
-    updateViewState({
-      ...newViewState,
-      transitionDuration: 'auto'
-    });
-
-    updateBounds(boundbox);
+  // Listen for changes to selectedArea and trigger the handler
+  $: {
+    if (selectedArea && !isHandlingChange) {
+      handleFlyToArea();
+    }
   }
 </script>
 
 <div class="area-select">
-  <select on:change={handleFlyToArea} aria-label="Select geographic area" class="select-dropdown">
+  <select 
+    bind:value={selectedArea}
+    aria-label="Select geographic area" 
+    class="select-dropdown"
+  >
     {#each AREA_SELECT_OPTIONS as option}
       {#if option.options}
         <optgroup label={option.label}>
