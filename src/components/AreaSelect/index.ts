@@ -1,2 +1,2 @@
-import AreaSelect from './AreaSelect.svelte';
+import AreaSelect from "./AreaSelect.svelte";
 export default AreaSelect;

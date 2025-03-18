@@ -2,8 +2,8 @@
   --primary: #08519c;
   --secondary-blue: rgba(107, 174, 214, 0.8);
   --transparent: rgba(255, 255, 255, 0.5);
-  --text-font: 'Titillium Web', sans-serif;
-  --lib-font: 'IBM Plex Sans', sans-serif;
+  --text-font: "Titillium Web", sans-serif;
+  --lib-font: "IBM Plex Sans", sans-serif;
   --base-font-size: 16px;
 }
 
