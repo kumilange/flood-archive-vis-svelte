@@ -48,7 +48,7 @@ export function generateFillColor(
 
 	// Ensure we have a valid index and return a properly typed color
 	const colorArray = COLOR_RANGE[index];
-	return colorArray ? colorArray.slice(0, 3) as [number, number, number] : [200, 200, 200];
+	return colorArray && colorArray.length >= 3 ? colorArray.slice(0, 3) as [number, number, number] : [200, 200, 200];
 }
 
 /**
@@ -65,7 +65,7 @@ export function getTimeRange(
 
 	return features.reduce(
 		(range, f) => {
-			const t = f?.properties?.['timestamp'];
+			const t = f?.properties?.['timestamp'] ?? null;
 			if (typeof t === 'number') {
 				range[0] = Math.min(range[0], t);
 				range[1] = Math.max(range[1], t);
