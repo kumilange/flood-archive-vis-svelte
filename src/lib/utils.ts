@@ -121,9 +121,14 @@ export function getTooltip(info: PickingInfo): { text: string; style: object } |
 
 /**
  * Get the cursor style based on hover state
- * @param isHovering - Whether the cursor is hovering over a feature
+ * @param info - Information about the hover event
  * @returns The cursor style
  */
-export function getCursor(info: any): string {
-	return info.isHovering ? 'pointer' : 'default';
-} 
+export function setCursor(info: { object?: any }): string {
+	// When hovering over an object, show a pointer
+	if (info?.object) {
+		return 'pointer';
+	}
+
+	return 'grab';
+}

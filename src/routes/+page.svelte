@@ -7,7 +7,6 @@
   import type { FeatureCollection, Geometry, GeoJsonProperties } from 'geojson';
   import { Map, AttributionControl } from 'svelte-maplibre-gl';
   import { DeckGLOverlay } from 'svelte-maplibre-gl/deckgl';
-  import maplibregl from 'maplibre-gl';
 
   import AreaSelect from '../components/AreaSelect/AreaSelect.svelte';
   import Legend from '../components/Legend/Legend.svelte';
@@ -19,7 +18,7 @@
     generateFillColor,
     getTimeRange,
     getTooltip,
-    getCursor
+    setCursor
   } from '../lib/utils';
 
   import 'maplibre-gl/dist/maplibre-gl.css';
@@ -34,16 +33,11 @@
   let data: FeatureCollection<Geometry, GeoJsonProperties> | undefined = undefined;
   let timeRange: [number, number] = [0, 0];
   let filterValue: [number, number] = [0, 0];
-  let map: maplibregl.Map | null = null;
   let loading = true;
   let error: string | null = null;
   let currentViewState: any;
   let currentTimeFilterRange: any;
-  
-  // Map load handler
-  function handleMapLoad(event: CustomEvent) {
-    map = event.detail.map;
-  }
+  let cursor: string = "grab";
 
   // Subscribe to stores
   viewState.subscribe(value => {
@@ -147,14 +141,19 @@
       style={MAP_STYLE}
       center={[currentViewState?.longitude || 0, currentViewState?.latitude || 0]}
       zoom={currentViewState?.zoom || 2}
-      {...{ 'on:load': handleMapLoad }}
       attributionControl={false}
+      cursor={cursor}
     >
       {#if layers.length > 0}
         <DeckGLOverlay 
           {layers}
           getTooltip={getTooltip}
-          getCursor={getCursor}
+          onHover={(info) => {
+            const currentCursor = setCursor(info);
+            if (currentCursor !== cursor) {
+              cursor = currentCursor;
+            }
+          }}
         />
       {/if}
       
