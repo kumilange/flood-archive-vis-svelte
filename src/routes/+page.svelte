@@ -21,12 +21,10 @@
     setCursor
   } from '../lib/utils';
 
-  import 'maplibre-gl/dist/maplibre-gl.css';
-
   // Create a data filter extension for time filtering
   const dataFilter = new DataFilterExtension({
     filterSize: 1,
-    fp64: false
+    fp64: true
   });
 
   // State

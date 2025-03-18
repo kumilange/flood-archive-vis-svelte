@@ -10,6 +10,7 @@ export function formatLabel(timestamp: number): string {
     timeZone: "utc",
     year: "numeric",
     month: "2-digit",
+    day: "2-digit",
   });
 }
 
@@ -65,7 +66,7 @@ export function getTimeRange(
     return [0, 0];
   }
 
-  return features.reduce(
+  const [minTime, maxTime] = features.reduce(
     (range, f) => {
       const t = f?.properties?.["timestamp"] ?? null;
       if (typeof t === "number") {
@@ -76,6 +77,10 @@ export function getTimeRange(
     },
     [Infinity, -Infinity],
   );
+
+  return minTime === Infinity || maxTime === -Infinity
+    ? [0, 0]
+    : [minTime, maxTime];
 }
 
 // Interface for flood properties
