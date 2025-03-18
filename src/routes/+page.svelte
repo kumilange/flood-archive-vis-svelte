@@ -4,7 +4,7 @@
   import { DataFilterExtension } from '@deck.gl/extensions';
   import { load } from '@loaders.gl/core';
   import { _GeoJSONLoader as GeoJSONLoader } from '@loaders.gl/json';
-  import type { FeatureCollection, Geometry, GeoJsonProperties } from 'geojson';
+  import type { FeatureCollection, Geometry, GeoJsonProperties, Feature } from 'geojson';
   import { Map, AttributionControl } from 'svelte-maplibre-gl';
   import { DeckGLOverlay } from 'svelte-maplibre-gl/deckgl';
 
@@ -38,6 +38,7 @@
   let currentViewState: any;
   let currentTimeFilterRange: any;
   let cursor: string = "grab";
+  let hoveredFeatureId: string | null = null;
 
   // Subscribe to stores
   viewState.subscribe(value => {
@@ -58,9 +59,14 @@
         data,
         filled: true,
         pickable: true,
-        getFillColor: (f: any): [number, number, number] => {
+        autoHighlight: true,
+        highlightColor: [255, 255, 100, 150],
+        getFillColor: (f: Feature<Geometry, GeoJsonProperties>): [number, number, number] => {
           try {
             const color = generateFillColor(f);
+            if (hoveredFeatureId && f.id === hoveredFeatureId) {
+              return [255, 255, 100] as [number, number, number];
+            }
             return color as [number, number, number];
           } catch (error) {
             console.warn('Invalid feature format for color generation', f);
@@ -68,12 +74,12 @@
           }
         },
         getLineColor: [0, 0, 0, 50],
-        getPointRadius: (f: any) => {
-          const area = (f.properties?.Area as number) || 0;
+        getPointRadius: (f: Feature<Geometry, GeoJsonProperties>) => {
+          const area = (f.properties?.['Area'] as number) || 0;
           return Math.sqrt(area) * 100;
         },
-        getFilterValue: (f: any) => {
-          return f.properties?.timestamp as number;
+        getFilterValue: (f: Feature<Geometry, GeoJsonProperties>) => {
+          return f.properties?.['timestamp'] as number;
         },
         filterRange: [filterValue[0], filterValue[1]],
         filterSoftRange: [
@@ -126,6 +132,8 @@
   }
 
   function updateCursor(info: { object?: any }, isDragging: boolean = false) {
+    hoveredFeatureId = info?.object?.id || null;
+    
     const currentCursor = setCursor(info, isDragging);
     if (currentCursor !== cursor) {
       cursor = currentCursor;
@@ -140,9 +148,15 @@
   </div>
 
   {#if loading}
-    <div class="loading">Loading data...</div>
+  <div class="loading" role="status" aria-live="polite">
+    <div class="loading-spinner"></div>
+    <span>Loading data...</span>
+  </div>
   {:else if error}
-    <div class="error" role="alert" aria-live="assertive">{error}</div>
+  <div class="error" role="alert" aria-live="assertive">
+    <span class="error-icon">⚠️</span>
+    <span>{error}</span>
+  </div>
   {:else}
     <Map
       style={MAP_STYLE}
@@ -229,10 +243,32 @@
     border-radius: 4px;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
     z-index: 1;
+    display: flex;
+    align-items: center;
+    gap: 12px;
   }
+
+  .loading-spinner {
+    width: 24px;
+    height: 24px;
+    border: 3px solid #f3f3f3;
+    border-top: 3px solid var(--primary);
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+  }
+
+  @keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+  }
+
 
   .error {
     color: red;
+  }
+
+  .error-icon {
+    font-size: 24px;
   }
 
   :global(.maplibregl-map) {
