@@ -124,10 +124,14 @@ export function getTooltip(info: PickingInfo): { text: string; style: object } |
  * @param info - Information about the hover event
  * @returns The cursor style
  */
-export function setCursor(info: { object?: any }): string {
+export function setCursor(info: { object?: any }, isDragging: boolean = false): string {
 	// When hovering over an object, show a pointer
 	if (info?.object) {
 		return 'pointer';
+	}
+
+	if (isDragging) {
+		return 'grabbing';
 	}
 
 	return 'grab';

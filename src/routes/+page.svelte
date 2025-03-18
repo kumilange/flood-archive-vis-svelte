@@ -124,6 +124,13 @@
   function handleTimeFilterChange(newRange: [number, number]) {
     updateTimeFilter(newRange);
   }
+
+  function updateCursor(info: { object?: any }, isDragging: boolean = false) {
+    const currentCursor = setCursor(info, isDragging);
+    if (currentCursor !== cursor) {
+      cursor = currentCursor;
+    }
+  }
 </script>
 
 <main>
@@ -148,12 +155,10 @@
         <DeckGLOverlay 
           {layers}
           getTooltip={getTooltip}
-          onHover={(info) => {
-            const currentCursor = setCursor(info);
-            if (currentCursor !== cursor) {
-              cursor = currentCursor;
-            }
-          }}
+          onHover={(info) => updateCursor(info)}
+          onDragStart={(info) => updateCursor(info, true)}
+          onDrag={(info) => updateCursor(info, true)}
+          onDragEnd={(info) => updateCursor(info, false)}
         />
       {/if}
       
