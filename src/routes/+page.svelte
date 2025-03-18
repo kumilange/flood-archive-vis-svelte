@@ -39,7 +39,7 @@
   let error: string | null = null;
   let currentViewState: any;
   let currentTimeFilterRange: any;
-
+  
   // Map load handler
   function handleMapLoad(event: CustomEvent) {
     map = event.detail.map;
@@ -112,7 +112,16 @@
       loading = false;
     } catch (err) {
       console.error('Error loading data:', err);
-      error = 'Error loading flood data. Please try again later.';
+      
+      if (err && typeof err === 'object' && 'response' in err && err.response && typeof err.response === 'object') {
+        const response = err.response as { status: number; statusText: string; json(): Promise<unknown> };
+        console.error('Response status:', response.status);
+        console.error('Response data:', await response.json());
+        error = `Error loading flood data: ${response.status} - ${response.statusText}. Please check the console for more details.`;
+      } else {
+        error = 'Error loading flood data. Please try again later.';
+      }
+      
       loading = false;
     }
   });

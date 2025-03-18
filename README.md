@@ -18,6 +18,7 @@ This project visualizes the Global Active Archive of Large Flood Events data fro
 - **TypeScript** - Type-safe JavaScript [TypeScript Documentation](https://www.typescriptlang.org/)
 - **deck.gl** - WebGL-powered visualization framework [deck.gl Documentation](https://deck.gl/)
 - **MapLibre GL** - Open-source map rendering [MapLibre GL Documentation](https://maplibre.org/)
+- **Svelte MapLibre GL** - Svelte 5 wrapper for MapLibre GL JS [Svelte MapLibre GL Documentation](https://svelte-maplibre-gl.mierune.dev/docs/quickstart)
 - **Svelte Stores** - State management [Svelte Stores Documentation](https://svelte.dev/docs#svelte_store)
 
 ## Installation

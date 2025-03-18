@@ -85,12 +85,17 @@ interface FloodProperties {
 	[key: string]: number | string; // Specify the type for the index signature
 }
 
+interface PickingInfo {
+	object?: any;
+	isHovering?: boolean;
+}
+
 /**
  * Generate tooltip content for a flood feature
  * @param info - Picking info from deck.gl
  * @returns Tooltip content or null if no object is hovered
  */
-export function getTooltip(info: any): { text: string; style: object } | null {
+export function getTooltip(info: PickingInfo): { text: string; style: object } | null {
 	const { object } = info;
 	if (!object) return null;
 

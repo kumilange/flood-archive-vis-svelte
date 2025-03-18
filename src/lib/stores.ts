@@ -20,7 +20,7 @@ export type BoundsType = [[number, number], [number, number]];
 
 // Create stores using Svelte's writable stores
 export const viewState = writable<ViewStateType>(INITIAL_VIEW_STATE);
-export const bounds = writable<BoundsType>(AREAS['all'].boundary);
+export const bounds = writable<BoundsType>(AREAS['all']?.boundary);
 
 // Time filter state
 export const timeFilterRange = writable<[number, number] | undefined>(undefined);

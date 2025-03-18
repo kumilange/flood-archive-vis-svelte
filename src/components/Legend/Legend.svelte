@@ -3,31 +3,20 @@
 </script>
 
 <div class="legend">
-  <span class="title">Death Toll</span>
-  <div class="item">
-    <span class="color color0"></span>
-    <span class="label">0</span>
-  </div>
-  <div class="item">
-    <span class="color color1"></span>
-    <span class="label">1 - 10</span>
-  </div>
-  <div class="item">
-    <span class="color color2"></span>
-    <span class="label">11 - 50</span>
-  </div>
-  <div class="item">
-    <span class="color color3"></span>
-    <span class="label">51 - 100</span>
-  </div>
-  <div class="item">
-    <span class="color color4"></span>
-    <span class="label">101 - 1000</span>
-  </div>
-  <div class="item">
-    <span class="color color5"></span>
-    <span class="label">1001+</span>
-  </div>
+  <strong class="title">Death Toll</strong>
+  {#each [
+    { label: '0', colorClass: 'color color0' },
+    { label: '1 - 10', colorClass: 'color color1' },
+    { label: '11 - 50', colorClass: 'color color2' },
+    { label: '51 - 100', colorClass: 'color color3' },
+    { label: '101 - 1000', colorClass: 'color color4' },
+    { label: '1001+', colorClass: 'color color5' }
+  ] as item}
+    <div class="item">
+      <span class={item.colorClass}></span>
+      <span class="label">{item.label}</span>
+    </div>
+  {/each}
 </div>
 
 <style lang="scss">

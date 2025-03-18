@@ -17,5 +17,3 @@ document.addEventListener('DOMContentLoaded', () => {
 		mount(App, { target });
 	}
 });
-
-export default App; 

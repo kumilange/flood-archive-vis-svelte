@@ -1,6 +1,6 @@
 <script lang="ts">
   import { WebMercatorViewport } from 'viewport-mercator-project';
-  import { AREAS, AREA_SELECT_OPTIONS } from '../../lib/constants';
+  import { AREAS, AREA_SELECT_OPTIONS, INITIAL_VIEW_STATE } from '../../lib/constants';
   import { get } from 'svelte/store';
   import {
     viewState,
@@ -41,8 +41,12 @@
         zoom: result.zoom
       };
     } catch (error) {
-      console.error('Error calculating viewport:', error);
-      return {}; // Return empty object as fallback
+      console.error('Error calculating viewport in fitBoundsToViewport:', error);
+      return {
+        longitude: INITIAL_VIEW_STATE.longitude,
+        latitude: INITIAL_VIEW_STATE.latitude,
+        zoom: INITIAL_VIEW_STATE.zoom
+      } as Partial<ViewStateType>;
     }
   }
 
@@ -53,26 +57,25 @@
     if (isHandlingChange) return; // Prevent recursive calls
     isHandlingChange = true;
     
-    try {
-      console.log('Area selected:', selectedArea);
-      
+    try {      
       // Ensure the selected area exists in our config
       if (!AREAS[selectedArea]) {
         console.error(`Unknown area: ${selectedArea}`);
         return;
       }
 
-      const boundbox = AREAS[selectedArea].boundary;
-      const newViewState = fitBoundsToViewport(boundbox);
+      const boundbox = AREAS[selectedArea]?.boundary;
 
-      // Update the viewState store 
-      updateViewState({
-        ...newViewState,
-        transitionDuration: 1000 
-      });
+      if (boundbox) {
+        const newViewState = fitBoundsToViewport(boundbox);
+        
+        updateViewState({
+          ...newViewState,
+          transitionDuration: 1000 
+        });
 
-      // Update the bounds store
-      updateBounds(boundbox);
+        updateBounds(boundbox); 
+      }
     } catch (error) {
       console.error('Error updating view state:', error);
     } finally {
@@ -95,7 +98,7 @@
     class="select-dropdown"
   >
     {#each AREA_SELECT_OPTIONS as option}
-      {#if option.options}
+      {#if 'options' in option}
         <optgroup label={option.label}>
           {#each option.options as subOption}
             <option value={subOption.value}>{subOption.label}</option>

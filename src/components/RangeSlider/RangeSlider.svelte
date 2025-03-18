@@ -3,7 +3,6 @@
 
   // Constants
   const MS_PER_DAY = 8.64e7;
-  const ANIMATION_SPEED = MS_PER_DAY * 10;
 
   // Props
   export let min: number;
@@ -11,6 +10,7 @@
   export let value: [number, number];
   export let formatLabel: (value: number) => string;
   export let onChange: (value: [number, number]) => void;
+  export let animationSpeed = MS_PER_DAY * 10;
 
   // Local state
   let isPlaying = false;
@@ -34,7 +34,7 @@
   // Handle min range input change
   function handleMinChange(e: Event) {
     const newMin = Number((e.target as HTMLInputElement).value);
-    if (newMin < maxValue) {
+    if (newMin >= min && newMin < maxValue) {
       minValue = newMin;
       onChange([minValue, maxValue]);
     }
@@ -43,7 +43,7 @@
   // Handle max range input change
   function handleMaxChange(e: Event) {
     const newMax = Number((e.target as HTMLInputElement).value);
-    if (newMax > minValue) {
+    if (newMax > minValue && newMax <= max) {
       maxValue = newMax;
       onChange([minValue, maxValue]);
     }
@@ -54,7 +54,7 @@
    */
   function updateAnimation() {
     const span = maxValue - minValue;
-    let nextValueMin = minValue + ANIMATION_SPEED;
+    let nextValueMin = minValue + animationSpeed;
 
     if (nextValueMin + span >= max) {
       nextValueMin = min;
@@ -263,7 +263,7 @@
   .labels {
     display: flex;
     justify-content: space-between;
-    margin-top: -2px;
+    margin-top: 0;
     font-weight: 300;
     color: var(--primary);
     font-size: 12px;
