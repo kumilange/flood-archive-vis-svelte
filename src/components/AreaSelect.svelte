@@ -1,6 +1,6 @@
 <script lang="ts">
   import { WebMercatorViewport } from 'viewport-mercator-project';
-  import { AREAS, AREA_SELECT_OPTIONS, INITIAL_VIEW_STATE } from '../../lib/constants';
+  import { AREAS, AREA_SELECT_OPTIONS, INITIAL_VIEW_STATE } from '../lib/constants';
   import { get } from 'svelte/store';
   import {
     viewState,
@@ -8,7 +8,7 @@
     updateBounds,
     type BoundsType,
     type ViewStateType
-  } from '../../lib/stores';
+  } from '../lib/stores';
 
   // Keep track of the currently selected area
   let selectedArea = 'all';
