@@ -1,5 +1,4 @@
 <script lang="ts">
-  // No script needed for this simple component
 </script>
 
 <div class="legend">
