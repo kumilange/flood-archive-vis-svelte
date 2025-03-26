@@ -1,19 +1,24 @@
-import "./styles/global.css";
 import { mount } from "svelte";
+import { load } from '@loaders.gl/core';
+import { _GeoJSONLoader as GeoJSONLoader } from '@loaders.gl/json';
+import { DATA_URL } from './lib/constants';
 import App from "./routes/+page.svelte";
+import LoadingError from "./components/LoadingError.svelte";
+import './styles/global.css';
 
 // Ensure the mount element exists before mounting
-document.addEventListener("DOMContentLoaded", () => {
-  const target = document.getElementById("app");
+document.addEventListener("DOMContentLoaded", async () => {
+  const target = document.getElementById("app") as HTMLElement;
 
-  if (!target) {
-    console.error("Target element #app not found. Creating one.");
-    const newTarget = document.createElement("div");
-    newTarget.id = "app";
-    document.body.appendChild(newTarget);
-    mount(App, { target: newTarget });
-  } else {
-    console.log("Mounting Svelte app to #app element");
-    mount(App, { target });
+  try {
+    const geojson = await load(DATA_URL, GeoJSONLoader, {
+      json: {
+        tableFormat: 'geojson',
+      },
+    });
+
+    mount(App, { target, props: { data: geojson } });
+  } catch (error) {
+    mount(LoadingError, { target, props: { error: error instanceof Error ? error.message : String(error) } });
   }
 });
