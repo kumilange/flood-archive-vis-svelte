@@ -2,7 +2,7 @@
 
 ## ⚠️ Note
 
-This project is a rewrite in `Svelte` of the `React` app [flood-archive-vis-react](https://github.com/kumilange/flood-archive-vis-react). It was completed by **Cursor** and **Claude-3.7-Sonnet** in 4 hours, along with a few cosmetic touch-ups that took an additional 4 hours.
+This project is a rewrite in `Svelte` of the `React` app [flood-archive-vis-react](https://github.com/kumilange/flood-archive-vis-react). It was completed by **Cursor** and **Claude-3.7-Sonnet** in 4 hours, with an additional 4 hours spent on cosmetic touch-ups and 8 hours on refactoring to use the latest version 5 syntax correctly.
 
 ## 📖 Introduction
 
