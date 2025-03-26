@@ -1,3 +1,5 @@
+import { DataFilterExtension } from '@deck.gl/extensions';
+
 // Map style and data URL
 export const MAP_STYLE =
   "https://basemaps.cartocdn.com/gl/positron-gl-style/style.json";
@@ -11,8 +13,13 @@ export const INITIAL_VIEW_STATE = {
 export const DATA_URL =
   "https://kumilange.github.io/data-store/flood/floodArchive.geojson";
 
+export const DATA_FILTER = new DataFilterExtension({
+  filterSize: 1,
+  fp64: true,
+});
+
 // Area definitions for the map
-type Area = {
+export type Area = {
   label: string;
   boundary: [[number, number], [number, number]];
   zoom: number;
@@ -144,3 +151,4 @@ const generateAreaOptions = (areas: Record<string, Area>) => {
 };
 
 export const AREA_SELECT_OPTIONS = generateAreaOptions(AREAS);
+
