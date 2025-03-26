@@ -1,75 +1,41 @@
 <script lang="ts">
-  import { onDestroy } from 'svelte';
+  import { formatLabel } from '../lib/utils';
   
   // Constants
   const MS_PER_DAY = 8.64e7;
+  const ANIMATION_SPEED = MS_PER_DAY * 10;
 
-  // Props
-  const props = $props<{
+  export type RangeValues = [start: number, end: number];
+  type RangeSliderProps = {
     min: number;
     max: number;
-    value: [number, number];
-    formatLabel: (timestamp: number) => string;
-    onChange: (range: [number, number]) => void;
-    animationSpeed?: number;
-  }>();
-
-  // Default value for optional props
-  const animationSpeed = props.animationSpeed ?? MS_PER_DAY * 10;
-
-    // Local state using Runes
-  let isPlaying = $state(false);
-  let animationId = $state<number | undefined>(undefined);
-  let minValue = $state(props.value[0]);
-  let maxValue = $state(props.value[1]);
-  
-  // Derived values
-  const formattedMinDate = $derived(props.formatLabel(minValue));
-  const formattedMaxDate = $derived(props.formatLabel(maxValue));
-  const isButtonEnabled = $derived(props.min < props.max && (minValue > props.min || maxValue < props.max));
-  
-  $effect(() => {
-    if (!isPlaying && (props.value[0] !== minValue || props.value[1] !== maxValue)) {
-      minValue = props.value[0];
-      maxValue = props.value[1];
-    }
-  });
-
-  // Handle min range input change
-  function handleMinChange(e: Event) {
-    const newMin = Number((e.target as HTMLInputElement).value);
-    if (newMin >= props.min && newMin < maxValue) {
-      minValue = newMin;
-      props.onChange([minValue, maxValue]);
-    }
+    values: RangeValues;
+    onChange: (range: RangeValues) => void;
   }
 
-  // Handle max range input change
-  function handleMaxChange(e: Event) {
-    const newMax = Number((e.target as HTMLInputElement).value);
-    if (newMax > minValue && newMax <= props.max) {
-      maxValue = newMax;
-      props.onChange([minValue, newMax]);
+  const { min, max, values, onChange } = $props<RangeSliderProps>();
+  let animationId: number | undefined = undefined;
+  let isPlaying = $state(false);  
+  const isButtonEnabled = $derived(min < max && (values[0] > min || values[1] < max));
+
+  /**
+	 * Handle min range input change
+	 */
+  function handleMinChange(e: Event) {
+    const newMin = Number((e.target as HTMLInputElement).value);
+    if (newMin >= min && newMin < values[1]) {
+      onChange([newMin, values[1]]);
     }
   }
 
   /**
-   * Handle animation frame updates
-   */
-  function updateAnimation() {
-    const span = maxValue - minValue;
-    let nextValueMin = minValue + animationSpeed;
-
-    if (nextValueMin + span >= props.max) {
-      nextValueMin = props.min;
+	 * Handle max range input change
+	 */
+  function handleMaxChange(e: Event) {
+    const newMax = Number((e.target as HTMLInputElement).value);
+    if (newMax > min && newMax <= max) {
+      onChange([values[0], newMax]);
     }
-
-    // Update values
-    minValue = nextValueMin;
-    maxValue = nextValueMin + span;
-    
-    // Notify parent
-    props.onChange([minValue, maxValue]);
   }
 
   /**
@@ -77,105 +43,109 @@
    */
   function toggleAnimation() {
     isPlaying = !isPlaying;
-    
-    if (isPlaying) {
-      // Cancel any existing animation
-      if (animationId) {
-        cancelAnimationFrame(animationId);
-      }
-      // Start a new animation
-      animationFrame();
-    } else if (animationId) {
-      cancelAnimationFrame(animationId);
-      animationId = undefined;
-    }
   }
   
   /**
-   * Request animation frame loop
+   * Handle animation frame updates
    */
-  function animationFrame() {    
-    updateAnimation();
-    animationId = requestAnimationFrame(animationFrame);
+  function updateAnimation() {
+    const span = values[1] - values[0];
+    let nextValueMin = values[0] + ANIMATION_SPEED;
+
+    if (nextValueMin + span >= max) {
+      nextValueMin = min;
+    }
+    
+    onChange([nextValueMin, nextValueMin + span]);
+
+    // Schedule the next animation frame
+		if (isPlaying) {
+			animationId = requestAnimationFrame(updateAnimation);
+		}
   }
 
-  // Cleanup on component destroy
-  onDestroy(() => {
-    if (animationId) {
-      cancelAnimationFrame(animationId);
+  // Animation effect triggered when isPlaying changes
+  $effect(() => {
+    if (isPlaying) {
+      animationId = requestAnimationFrame(updateAnimation);
     }
-  });
+
+    return () => {
+      if (animationId) {
+        cancelAnimationFrame(animationId);
+        animationId = undefined;
+      }
+    };
+  }); 
 </script>
 
-{#if props.min !== props.max}
-  <div class="slider">
-    <div class="range-slider">
-      <button
-        class="play-button"
-        disabled={!isButtonEnabled}
-        onclick={toggleAnimation}
-        title={isPlaying ? 'Stop' : 'Animate'}
-        aria-label={isPlaying ? 'Stop animation' : 'Start animation'}
-      >
-        {#if isPlaying}
-          <svg
-            viewBox="0 0 24 24"
-            width="24"
-            height="24"
-            stroke="currentColor"
-            stroke-width="2"
-            fill="none"
-          >
-            <rect x="6" y="4" width="4" height="16"></rect>
-            <rect x="14" y="4" width="4" height="16"></rect>
-          </svg>
-        {:else}
-          <svg
-            viewBox="0 0 24 24"
-            width="24"
-            height="24"
-            stroke="currentColor"
-            stroke-width="2"
-            fill="none"
-          >
-            <polygon points="5,3 19,12 5,21"></polygon>
-          </svg>
-        {/if}
-      </button>
+<div class="slider">
+  <div class="range-slider">
+    <button
+      class="play-button"
+      disabled={!isButtonEnabled}
+      onclick={toggleAnimation}
+      title={isPlaying ? 'Stop' : 'Animate'}
+      aria-label={isPlaying ? 'Stop animation' : 'Start animation'}
+    >
+      {#if isPlaying}
+        <svg
+          viewBox="0 0 24 24"
+          width="24"
+          height="24"
+          stroke="currentColor"
+          stroke-width="2"
+          fill="none"
+        >
+          <rect x="6" y="4" width="4" height="16"></rect>
+          <rect x="14" y="4" width="4" height="16"></rect>
+        </svg>
+      {:else}
+        <svg
+          viewBox="0 0 24 24"
+          width="24"
+          height="24"
+          stroke="currentColor"
+          stroke-width="2"
+          fill="none"
+        >
+          <polygon points="5,3 19,12 5,21"></polygon>
+        </svg>
+      {/if}
+    </button>
 
-      <div class="slider-wrapper">
-        <div class="range-container">
-          <input 
-            type="range" 
-            min={props.min} 
-            max={props.max} 
-            value={minValue} 
-            oninput={handleMinChange}
-            class="range range-min"
-          />
-          <input 
-            type="range" 
-            min={props.min} 
-            max={props.max} 
-            value={maxValue} 
-            oninput={handleMaxChange}
-            class="range range-max"
-          />
-          <div class="track"></div>
-          <div 
-            class="range-selected"
-            style="left: {((minValue - props.min) / (props.max - props.min)) * 100}%; 
-                width: {((maxValue - minValue) / (props.max - props.min)) * 100}%;"
-          ></div>
-        </div>
-        <div class="labels">
-          <span class="label-min">{formattedMinDate}</span>
-          <span class="label-max">{formattedMaxDate}</span>
-        </div>
+    <div class="slider-wrapper">
+      <div class="range-container">
+        <input 
+          type="range" 
+          min={min} 
+          max={max} 
+          value={values[0]} 
+          oninput={handleMinChange}
+          class="range range-min"
+        />
+        <input 
+          type="range" 
+          min={min} 
+          max={max} 
+          value={values[1]} 
+          oninput={handleMaxChange}
+          class="range range-max"
+        />
+        <div class="track"></div>
+        <div 
+          class="range-selected"
+          style="left: {((values[0] - min) / (max - min)) * 100}%; 
+              width: {((values[1] - values[0]) / (max - min)) * 100}%;"
+        ></div>
+      </div>
+      <div class="labels">
+        <span class="label-min">{formatLabel(values[0])}</span>
+        <span class="label-max">{formatLabel(values[1])}</span>
       </div>
     </div>
   </div>
-{/if}
+</div>
 
 <style lang="scss">
   .slider {

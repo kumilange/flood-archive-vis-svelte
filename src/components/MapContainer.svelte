@@ -5,9 +5,7 @@
   import { MAP_STYLE } from '../lib/constants';
   import { createMapHandlers, getTooltip } from '../lib/utils';
 
-  // Props
-  const props = $props<{layers: any}>();
-  // State
+  const { layers } = $props<{layers: any}>();
   let cursor: string = $state("grab");
 
   // Map interaction handlers
@@ -27,9 +25,9 @@
   attributionControl={false}
   cursor={cursor}
 >
-  {#if props.layers.length > 0}
+  {#if layers.length > 0}
     <DeckGLOverlay 
-      layers={props.layers}
+      layers={layers}
       getTooltip={getTooltip}
       onHover={handleHover}
       onDragStart={handleDragStart}

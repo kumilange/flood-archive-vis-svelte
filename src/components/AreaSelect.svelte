@@ -1,8 +1,8 @@
 <script lang="ts">
   import { WebMercatorViewport } from 'viewport-mercator-project';
   import { FlyToInterpolator } from '@deck.gl/core';
-  import { AREAS, AREA_SELECT_OPTIONS, type Area } from '../lib/constants';
   import { get } from 'svelte/store';
+  import { AREAS, AREA_SELECT_OPTIONS, type Area } from '../lib/constants';
   import {
     viewState,
     updateViewState,

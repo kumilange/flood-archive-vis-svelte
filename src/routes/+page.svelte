@@ -3,19 +3,18 @@
   import AreaSelect from '../components/AreaSelect.svelte';
   import Legend from '../components/Legend.svelte';
   import MapContainer from '../components/MapContainer.svelte';
-  import RangeSlider from '../components/RangeSlider.svelte';
-  
-  import { timeFilterRange, updateTimeFilter } from '../lib/stores';
-  import { getTimeRange, formatLabel, createFloodLayer } from '../lib/utils';
+  import RangeSlider, { type RangeValues } from '../components/RangeSlider.svelte';
+  import { getTimeRange, createFloodLayer } from '../lib/utils';
 
-  // Props
   const props = $props<{
     data: FeatureCollection<Geometry, GeoJsonProperties>}>();
+  let timeRange = getTimeRange(props.data.features);
+  let rangeValues = $state(timeRange);
+  let layers = $derived([createFloodLayer(props.data, rangeValues)]);
 
-  // Derived values
-  let timeRange = $derived(getTimeRange(props.data.features));
-  let filterValue = $derived($timeFilterRange || timeRange);
-  let layers = $derived([createFloodLayer(props.data, filterValue)]);
+  function handleRangeChange(newRanges: RangeValues) {
+    rangeValues = newRanges;
+  }
 </script>
 
 <main>
@@ -27,12 +26,12 @@
   <MapContainer {layers}/>
 
   <Legend />
+
   <RangeSlider 
     min={timeRange[0]}
     max={timeRange[1]}
-    value={filterValue}
-    formatLabel={formatLabel}
-    onChange={updateTimeFilter}
+    values={rangeValues}
+    onChange={handleRangeChange}
   />
 </main>
 
